@@ -1,13 +1,17 @@
 %% Find the camera intrinsic parameters
 % Input Parameters
+%TODO: check if older versions of matlab have a different function call
+%than what is shown in detectCheckerboardPointsPar.m line 545
 clear
-basedir = 'D:\20191122\mouse\calibration\intrinsic\';
+basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/intr_cal2/transcoded_color";
+% camera_ids = ["e3v82eb" "e3v833f" "e3v83e4"];
+camera_ids = ["e3v833f" "e3v83e4" "e3v82eb"];
 cd(basedir)
-numcams = 6;
-squareSize = 10.0; % Size of Checkerboard squares in mm
+numcams = 3; %changed to 3 6/8/23
+squareSize = 20.0; % Size of Checkerboard squares in mm
 ext = '.mp4';
 maxNumImages = 500;
-videoName = '0';
+videoName = "-20230609T130008-130029";
 %% Automated Checkerboard Frame Detection
 % Pre-allocate
 params_individual = cell(1,numcams);
@@ -21,7 +25,9 @@ clear video_temp
 for kk = 1:numcams
     
     tic
-    video_temp = VideoReader([basedir filesep 'Camera' num2str(kk) filesep videoName '.mp4']);
+%     video_temp = VideoReader([basedir filesep 'Camera' num2str(kk) filesep videoName '.mp4']); %change this line to grab a camera's calibration video
+    video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+".mp4");
+        
     maxFrames = floor(video_temp.FrameRate*video_temp.Duration);
     
     video_base = cell(maxFrames,1);
@@ -36,7 +42,7 @@ for kk = 1:numcams
     imUse1 = round(linspace(1,length(video_base),num2use));
     fprintf('finding checkerboard points for view %i \n', kk)
     [imagePoints{kk}, boardSize{kk}, imagesUsed{kk}] = ...
-        detectCheckerboardPointsPar(cat(4,video_base{imUse1}));
+        detectCheckerboardPointsPar(cat(4,video_base{imUse1})); 
 
     worldPoints = generateCheckerboardPoints(boardSize{kk},squareSize);
     imagesUsedTemp = find(imagesUsed{kk});
@@ -51,14 +57,16 @@ for kk = 1:numcams
     toc
 end
 % Save the camera parameters
-save([basedir 'cam_intrinsics.mat'],'params_individual','imagePoints','boardSize','imagesUsed','imageNums');
+save(basedir + "cam_intrinsics.mat",'params_individual','imagePoints','boardSize','imagesUsed','imageNums');
 
 %% Visualize Preprojections
 cd(basedir)
-load('cam_intrinsics.mat')
-numcams = 6;
+load('transcoded_colorcam_intrinsics.mat')
+numcams = 3;
 for kk = 1:numcams
-    video_temp = VideoReader([basedir 'view_cam' num2str(kk) '.mp4']);    
+%     video_temp = VideoReader([basedir 'view_cam' num2str(kk) '.mp4']);    
+    video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+".mp4");
+  
     maxframes = floor(video_temp.FrameRate*video_temp.Duration);
     video_base = cell(maxframes,1);
     cnt = 1;
@@ -99,7 +107,9 @@ end
 %% View Undistorted Images
 load([basedir 'cam_intrinsics.mat'])
 for kk=1:numcams
-    imFiles1 = VideoReader([basedir filesep 'Camera' num2str(kk) filesep '1' ext],'CurrentTime',0.5); 
+%     imFiles1 = VideoReader([basedir filesep 'Camera' num2str(kk) filesep '1' ext],'CurrentTime',0.5); 
+    imFiles1 = VideoReader(basedir+filesep+camera_ids(kk)+videoName+".mp4");
+
     figure(kk);
     im = readFrame(imFiles1,'native');
     subplot(121);imagesc(im);
