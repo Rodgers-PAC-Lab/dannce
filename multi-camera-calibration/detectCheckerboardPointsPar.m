@@ -542,16 +542,12 @@ I = im2single(Igray);
 % bandwidth to smooth the image
 sigma = 2;
 
-% [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
-%    I, sigma, minCornerMetric); %this line appears incompatible with 2022b
- [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard( ...
-     I, sigma, minCornerMetric, false, false);
+[points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
+    I, sigma, minCornerMetric);
 
 if isempty(points)
     sigma = 4;
-%     [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
-%         I, sigma, minCornerMetric);
     [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
-            I, sigma, minCornerMetric, false, false);
+        I, sigma, minCornerMetric);
 end
 

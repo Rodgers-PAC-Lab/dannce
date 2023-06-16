@@ -543,11 +543,11 @@ I = im2single(Igray);
 sigma = 2;
 
 [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
-    I, sigma, minCornerMetric, false, false); %need to pass these booleans for compatability with R2022b
+    I, sigma, minCornerMetric);
 
 if isempty(points)
     sigma = 4;
     [points, boardSize] = vision.internal.calibration.checkerboard.detectCheckerboard(...
-        I, sigma, minCornerMetric, false, false);
+        I, sigma, minCornerMetric);
 end
 

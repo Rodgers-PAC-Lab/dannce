@@ -3,45 +3,32 @@
 % cropped images to determine view extrinsic parameters.
 clear
 % Load in the crop params
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/extr_cal3/transcoded_color";
-intr_dir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/intr_cal2";
-numCams = 3; 
-numPoints = 4; %do we want numPoints = numCams-1? Seems like what they did in the paper. But, 2 points for 3 cameras seems small...
+basedir = 'D:\20191030\mouse9\calibration\';
+numCams = 6;
+numPoints = 5;
 ext = '.tiff';
-camera_ids = ["e3v833f" "e3v83e4" "e3v82eb"];
-video_name = "-20230609T134847-134917";
-
 
 % Input the physical (x,y,z) dimensions for each of the post tops on the 
 % L-frame device.
-LFrame_coordinates = [ -8.5 5 1; 8.5 -5 1; 8.5 5 1; 0 0 1]; %thoroughly perplexed by how these points translate into an L-frame... run commented LW code below to visualize
-
-%LW added 6/8/23------------------------------------------------
-% x = [-5 5 -5 0 5];
-% y = [-5 -5 5 0 5];
-% z = [2.5 4.5 6.5 8.5 10.5];
-% figure()
-% scatter3(x,y,z)
-%---------------------------------------------------------------
+LFrame_coordinates = [ -5 -5 2.5; 5 -5 4.5; -5 5 6.5; 0 0 8.5; 5 5 10.5];
 LFrame_coordinates = 10*(LFrame_coordinates); % cm to mm
 
-% convert first frame of each video to tiff
+%convert first frame of each video to tiff
 % fileloc = [basedir filesep 'extrinsic'];
 % cd(fileloc)
-for kk = 1:numCams
-    filename = camera_ids(kk)+video_name;
-    video_temp = VideoReader(filename+'.mp4','CurrentTime', 0);
-    frame_temp = readFrame(video_temp);
-    imshow(frame_temp)
-    imwrite(frame_temp,filename+".tiff")
-end
+% for kk = 1:numCams
+%     filename = ['view_' num2str(kk)];
+%     video_temp = VideoReader([basedir 'extrinsic' filesep filename '.mp4'],'CurrentTime', 0);
+%     frame_temp = readFrame(video_temp);
+%     %imshow(frame_temp)
+%     imwrite(frame_temp,[filename,'.tiff'])
+% end
 
 lframe = cell(numCams,1);
 for i = 1:numCams
-    filename = camera_ids(i)+video_name;
-    lframe{i} = imread(filename+ext);
+    lframe{i} = imread([basedir 'extrinsic' filesep 'view_cam' num2str(i) ext]);
 end
-load(intr_dir + filesep + "transcoded_colorcam_intrinsics.mat");
+load([basedir filesep 'intrinsic' filesep 'cam_intrinsics.mat']);
 
 %% Click points for each post top in order for each view
 figure;
@@ -59,12 +46,12 @@ for kk = 1:numel(lframe)
 end
 
 % Plot point coordinates
-figure;
-for kk = 1:numel(lframe)
-    hold off; imagesc(LFrame_image{kk});colormap(gray)
-    hold on; plot(point_coordinates{kk}(:,1),point_coordinates{kk}(:,2),'or')
-    waitforbuttonpress;
-end
+% figure;
+% for kk = 1:numel(lframe)
+%     hold off; imagesc(LFrame_image{kk});colormap(gray)
+%     hold on; plot(point_coordinates{kk}(:,1),point_coordinates{kk}(:,2),'or')
+%     waitforbuttonpress;
+% end
 
 % If we mis-labeled a point, remove it here
 % rmf = 5;
@@ -105,12 +92,8 @@ for kk = 1:numel(lframe)
                         end
                         
                     end
-                catch ex
-                    disp(ex)
                 end
-
             end
-
         end
     end
     
@@ -129,8 +112,6 @@ for kk = 1:numel(lframe)
                 worldLocation{kk} = worldL;
                 curr_err = err;
             end
-        catch ex
-            disp(ex)
         end
     end
     

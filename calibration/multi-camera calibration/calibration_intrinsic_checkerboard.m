@@ -1,14 +1,13 @@
 %% Find the camera intrinsic parameters
 % Input Parameters
 clear
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/intr_cal_615/transcoded_color";
+basedir = 'D:\20191122\mouse\calibration\intrinsic\';
 cd(basedir)
-numcams = 3;
-squareSize = 20.0; % Size of Checkerboard squares in mm
-camera_ids = ["e3v833f" "e3v83e4" "e3v82eb"];
-ext = ".mp4";
+numcams = 6;
+squareSize = 10.0; % Size of Checkerboard squares in mm
+ext = '.mp4';
 maxNumImages = 500;
-videoName = "-20230615T133611-133700";
+videoName = '0';
 %% Automated Checkerboard Frame Detection
 % Pre-allocate
 params_individual = cell(1,numcams);
@@ -22,7 +21,7 @@ clear video_temp
 for kk = 1:numcams
     
     tic
-    video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext);
+    video_temp = VideoReader([basedir filesep 'Camera' num2str(kk) filesep videoName '.mp4']);
     maxFrames = floor(video_temp.FrameRate*video_temp.Duration);
     
     video_base = cell(maxFrames,1);
@@ -52,14 +51,14 @@ for kk = 1:numcams
     toc
 end
 % Save the camera parameters
-save('cam_intrinsics.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
+save([basedir 'cam_intrinsics.mat'],'params_individual','imagePoints','boardSize','imagesUsed','imageNums');
 
 %% Visualize Preprojections
 cd(basedir)
 load('cam_intrinsics.mat')
-numcams = 3;
+numcams = 6;
 for kk = 1:numcams
-    video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext);    
+    video_temp = VideoReader([basedir 'view_cam' num2str(kk) '.mp4']);    
     maxframes = floor(video_temp.FrameRate*video_temp.Duration);
     video_base = cell(maxframes,1);
     cnt = 1;
@@ -75,9 +74,7 @@ for kk = 1:numcams
     imagesUsedFull_ = find(imagesUsed{kk});
     imagesUsedFull_ = imagesUsedFull_(imagesUsed_);
     
-    %show first 20 of each
-%     for im2use = 1:numel(imagesUsed_)
-    for im2use = 1:20
+    for im2use = 1:numel(imagesUsed_)
         imUsed = imagesUsed_(im2use);
         imDisp = imagesUsedFull_(im2use);
         pts = imagePoints{kk}(:,:,imUsed);
@@ -102,7 +99,7 @@ end
 %% View Undistorted Images
 load([basedir 'cam_intrinsics.mat'])
 for kk=1:numcams
-    imFiles1 = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext,'CurrentTime',0.5); 
+    imFiles1 = VideoReader([basedir filesep 'Camera' num2str(kk) filesep '1' ext],'CurrentTime',0.5); 
     figure(kk);
     im = readFrame(imFiles1,'native');
     subplot(121);imagesc(im);
