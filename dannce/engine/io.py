@@ -15,14 +15,17 @@ def load_label3d_data(path: Text, key: Text):
         TYPE: Data from field
     """
     d = sio.loadmat(path)[key]
-    #dataset = d[0]
     dataset = [f[0] for f in d]
+
+    #Added by LW 7/27/2023:----------------------------------------------
     if key=="params":
         out = "{} length is {}"
         dataset = [f[0] for f in d[0]]
         print(out.format("d", len(d)))
         print(out.format("dataset", len(dataset)))
         i=0
+    #--------------------------------------------------------------------
+
     # Data are loaded in this annoying structure where the array
     # we want is at dataset[i][key][0,0], as a nested array of arrays.
     # Simplify this structure (a numpy record array) here.
@@ -30,17 +33,19 @@ def load_label3d_data(path: Text, key: Text):
     # new dict and return.
     data = []
     for d in dataset:
+        #Added by LW 7/27/2023--------------------------
         if key=="params":
             print("d{} is {}".format(i,d))
             i += 1
+        #-----------------------------------------------
         d_ = {}
         for k in d.dtype.names:
-            print(k)
-            #d_[key] = d[key][0,0]
+        #Modified by LW 7/27/2023-----------------------
             if key=="params":
                 d_[k]=d[k][0]
             else:
                 d_[k] = d[k][0,0]
+        #-----------------------------------------------
         data.append(d_)
 
     #print(len(data))
