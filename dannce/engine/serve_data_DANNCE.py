@@ -44,6 +44,9 @@ def prepare_data(
         labels = load_labels(params["label3d_file"])
 
     camera_params = load_camera_params(params["label3d_file"])
+    print(params["label3d_file"])
+    #print(camera_params)
+    #print(params["camnames"])
     cameras = {name: camera_params[i] for i, name in enumerate(params["camnames"])}
 
     if "m" in camera_params[0] and not params["mirror"]:

@@ -3,20 +3,21 @@
 % cropped images to determine view extrinsic parameters.
 clear
 % Load in the crop params
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/extr_cal_615/transcoded_color";
-intr_dir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/intr_cal_615/transcoded_color";
-numCams = 3; 
+basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4/Video_8";
+intr_dir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4";
+numCams = 5; 
 numPoints = 5; %do we want numPoints = numCams-1? Seems like what they did in the paper. But, 2 points for 3 cameras seems small...
 ext = '.tiff';
-camera_ids = ["e3v833f" "e3v83e4" "e3v82eb"];
-video_name = "-20230615T133958-134000";
-
+camera_ids = ["e3v833f" "e3v83e4" "e3v82eb" "e3v83d2" "e3v83d9"];
+video_name = "-20230721T103338-103340_smaller";
+cd(basedir)
 
 % Input the physical (x,y,z) dimensions for each of the post tops on the 
 % L-frame device.
 % LFrame_coordinates = [ -8.5 5 1; 8.5 -5 1; 8.5 5 1; 0 0 1];%thoroughly perplexed by how these points translate into an L-frame... run commented LW code below to visualize
-LFrame_coordinates = [0 0 1; -8.5 5 1; 8.5 5 1; 8.5 -5 1; -8.5 -5 1];
-
+% LFrame_coordinates = [0 0 1; -8.5 5 1; 8.5 5 1; 8.5 -5 1; -8.5 -5 1];
+% LFrame_coordinates = [-5 -5 2.5; 5 -5 4.5; -5 5 6.5; -1.5 0 8.5; 5 5 10.5];
+LFrame_coordinates = [-5 -5 2.5; 5 -5 4.5; -5 5 6.5; -2.0 0 8.5; 5 5 10.5]; %I think the spire at (-1.5,0,8.5) is off by 0.5 cm
 %LW added 6/8/23------------------------------------------------
 % x = [-5 5 -5 0 5];
 % y = [-5 -5 5 0 5];
@@ -38,11 +39,20 @@ for kk = 1:numCams
 end
 
 lframe = cell(numCams,1);
+% lframe = cell(numCams-1,1);
 for i = 1:numCams
+%     if i==3
+%         continue
+%     elseif i>3
+%         filename = camera_ids(i)+video_name;
+%         lframe{i-1} = imread(filename+ext);
+% 
+%     else
     filename = camera_ids(i)+video_name;
     lframe{i} = imread(filename+ext);
+%     end
 end
-load(intr_dir + filesep + "cam_intrinsics.mat");
+load(intr_dir + filesep + "cam_intrinsics7.mat");
 
 %% Click points for each post top in order for each view
 figure;
@@ -55,9 +65,9 @@ for kk = 1:numel(lframe)
 end
 
 % Remove any extra points at the end that were accidentally marked
-for kk = 1:numel(lframe)
-    point_coordinates{kk} = point_coordinates{kk}(1:numPoints,:);
-end
+% for kk = 1:numel(lframe)
+%     point_coordinates{kk} = point_coordinates{kk}(1:numPoints,:);
+% end
 
 % Plot point coordinates
 figure;
@@ -143,7 +153,8 @@ end
 print('-dpng','cameraArrangement.png');
 
 % Save full camera parameters: intrinsics, extrinsics
-save("camera_params",'params_individual','worldOrientation','worldLocation','rotationMatrix','translationVector');
+cd('../')
+save("camera_params6",'params_individual','worldOrientation','worldLocation','rotationMatrix','translationVector');
 
 %% Find closed form solution for rotation and translation.
 % for kk = 1:numel(lframe)
@@ -157,11 +168,11 @@ for kk = 1:numel(lframe)
     hold on
     
     tmp_v = translationVector{kk};
-    % tmp_v(3) = -1*tmp_v(3);
-    %tmp_v = -1*tmp_v;
+%     tmp_v(3) = -1*tmp_v(3);
+%     tmp_v = -1*tmp_v;
     %     tmp_v
     tmp_r = rotationMatrix{kk};
-    % tmp_r(:,1) = -1*tmp_r(:,1);
+%     tmp_r(:,1) = -1*tmp_r(:,1);
     imagePoints = worldToImage(params_individual{kk},tmp_r,tmp_v,double(LFrame_coordinates));
     
     colorarray = jet(size(imagePoints,1));%{'r','g','b','y','m','w','k'};

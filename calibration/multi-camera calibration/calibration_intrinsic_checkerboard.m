@@ -1,14 +1,15 @@
 %% Find the camera intrinsic parameters
 % Input Parameters
 clear
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/intr_cal_615/transcoded_color";
+basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4/Video_12";
 cd(basedir)
-numcams = 3;
+numcams = 5;
 squareSize = 20.0; % Size of Checkerboard squares in mm
-camera_ids = ["e3v833f" "e3v83e4" "e3v82eb"];
+camera_ids = ["e3v833f" "e3v83e4" "e3v82eb" "e3v83d2" "e3v83d9"];
+% camera_ids = ["e3v83d2"];
 ext = ".mp4";
 maxNumImages = 500;
-videoName = "-20230615T133611-133700";
+videoName = "-20230724T134238-134450_smaller";
 %% Automated Checkerboard Frame Detection
 % Pre-allocate
 params_individual = cell(1,numcams);
@@ -37,7 +38,7 @@ for kk = 1:numcams
     imUse1 = round(linspace(1,length(video_base),num2use));
     fprintf('finding checkerboard points for view %i \n', kk)
     [imagePoints{kk}, boardSize{kk}, imagesUsed{kk}] = ...
-        detectCheckerboardPointsPar(cat(4,video_base{imUse1}));
+        detectCheckerboardPointsPar(cat(4,video_base{imUse1}), 'MinCornerMetric', 0.15);
 
     worldPoints = generateCheckerboardPoints(boardSize{kk},squareSize);
     imagesUsedTemp = find(imagesUsed{kk});
@@ -51,13 +52,27 @@ for kk = 1:numcams
         'NumRadialDistortionCoefficients',3);
     toc
 end
+
+% cd('../')
+% int_file = load('cam_intrinsics5.mat');
+% int_file.params_individual{4} = params_individual{1};
+% int_file.imagePoints{4} = imagePoints{1};
+% int_file.imagesUsed{4} = imagesUsed{1};
+% int_file.imageNums{4} = imageNums{1};
+% params_individual = int_file.params_individual;
+% imagePoints = int_file.imagePoints;
+% imagesUsed = int_file.imagesUsed;
+% inmageNums = int_file.imageNums;
 % Save the camera parameters
-save('cam_intrinsics.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
+cd('../') %definitely refactor this
+% save('cam_intrinsics6.mat','int_file.params_individual','int_file.imagePoints','int_file.boardSize','int_file.imagesUsed','int_file.imageNums');
+save('cam_intrinsics7.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
 
 %% Visualize Preprojections
 cd(basedir)
-load('cam_intrinsics.mat')
-numcams = 3;
+cd('../')
+load('cam_intrinsics7.mat')
+numcams = 5;
 for kk = 1:numcams
     video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext);    
     maxframes = floor(video_temp.FrameRate*video_temp.Duration);
