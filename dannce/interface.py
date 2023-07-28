@@ -442,7 +442,9 @@ def com_train(params: Dict):
     print("COMPLETE\n")
 
     if params["com_finetune_weights"] is not None:
+        #print(params["com_finetune_weights"])
         weights = os.listdir(params["com_finetune_weights"])
+        #print(weights)
         weights = [f for f in weights if ".hdf5" in f]
         weights = weights[0]
 

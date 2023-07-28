@@ -21,9 +21,9 @@ def load_label3d_data(path: Text, key: Text):
     if key=="params":
         out = "{} length is {}"
         dataset = [f[0] for f in d[0]]
-        print(out.format("d", len(d)))
-        print(out.format("dataset", len(dataset)))
-        i=0
+       # print(out.format("d", len(d)))
+       # print(out.format("dataset", len(dataset)))
+       # i=0
     #--------------------------------------------------------------------
 
     # Data are loaded in this annoying structure where the array
@@ -34,9 +34,9 @@ def load_label3d_data(path: Text, key: Text):
     data = []
     for d in dataset:
         #Added by LW 7/27/2023--------------------------
-        if key=="params":
-            print("d{} is {}".format(i,d))
-            i += 1
+       # if key=="params":
+        #    print("d{} is {}".format(i,d))
+        #    i += 1
         #-----------------------------------------------
         d_ = {}
         for k in d.dtype.names:
