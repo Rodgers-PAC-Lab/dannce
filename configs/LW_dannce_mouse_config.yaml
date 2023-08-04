@@ -22,7 +22,7 @@ net_type: AVG
 train_mode: finetune
 
 # How many samples from each animal do you want to (randomly) set aside for a validation metric?
-num_validation_per_exp: 1
+num_validation_per_exp: 0 #set to 0 per wiki suggestion
 
 # Size of 3D volume (in mm) anchored on animal
 vol_size: 120

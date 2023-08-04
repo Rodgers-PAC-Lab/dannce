@@ -3,13 +3,13 @@
 % cropped images to determine view extrinsic parameters.
 clear
 % Load in the crop params
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4/Video_8";
-intr_dir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4";
+basedir = "/home/mouse/mnt/cuttlefish/lucas/calibration_tests/calibration_0803/video_2";
+intr_dir = "/home/mouse/mnt/cuttlefish/lucas/calibration_tests/calibration_0803";
 numCams = 5; 
 numPoints = 5; %do we want numPoints = numCams-1? Seems like what they did in the paper. But, 2 points for 3 cameras seems small...
 ext = '.tiff';
 camera_ids = ["e3v833f" "e3v83e4" "e3v82eb" "e3v83d2" "e3v83d9"];
-video_name = "-20230721T103338-103340_smaller";
+video_name = "-20230803T154946-154947";
 cd(basedir)
 
 % Input the physical (x,y,z) dimensions for each of the post tops on the 
@@ -52,7 +52,7 @@ for i = 1:numCams
     lframe{i} = imread(filename+ext);
 %     end
 end
-load(intr_dir + filesep + "cam_intrinsics7.mat");
+load(intr_dir + filesep + "cam_intrinsics1.mat");
 
 %% Click points for each post top in order for each view
 figure;
@@ -154,7 +154,7 @@ print('-dpng','cameraArrangement.png');
 
 % Save full camera parameters: intrinsics, extrinsics
 cd('../')
-save("camera_params6",'params_individual','worldOrientation','worldLocation','rotationMatrix','translationVector');
+save("camera_params12",'params_individual','worldOrientation','worldLocation','rotationMatrix','translationVector');
 
 %% Find closed form solution for rotation and translation.
 % for kk = 1:numel(lframe)

@@ -20,10 +20,11 @@ def load_label3d_data(path: Text, key: Text):
     #Added by LW 7/27/2023:----------------------------------------------
     if key=="params":
         out = "{} length is {}"
-        dataset = [f[0] for f in d[0]]
-       # print(out.format("d", len(d)))
-       # print(out.format("dataset", len(dataset)))
-       # i=0
+   #     dataset = [f[0] for f in d[0]]
+        print("from io.py")
+        print(out.format("d", len(d)))
+        print(out.format("dataset", len(dataset)))
+        i=0
     #--------------------------------------------------------------------
 
     # Data are loaded in this annoying structure where the array
@@ -34,17 +35,18 @@ def load_label3d_data(path: Text, key: Text):
     data = []
     for d in dataset:
         #Added by LW 7/27/2023--------------------------
-       # if key=="params":
-        #    print("d{} is {}".format(i,d))
-        #    i += 1
+        if key=="params":
+            print("d{} is {}".format(i,d))
+            print("----")
+            i += 1
         #-----------------------------------------------
         d_ = {}
         for k in d.dtype.names:
         #Modified by LW 7/27/2023-----------------------
-            if key=="params":
-                d_[k]=d[k][0]
-            else:
-                d_[k] = d[k][0,0]
+   #         if key=="params":
+   #             d_[k]=d[k][0]
+  #          else:
+            d_[k] = d[k][0,0]
         #-----------------------------------------------
         data.append(d_)
 

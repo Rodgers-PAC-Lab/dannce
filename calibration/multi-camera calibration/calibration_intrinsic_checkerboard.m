@@ -1,7 +1,7 @@
 %% Find the camera intrinsic parameters
 % Input Parameters
 clear
-basedir = "/home/mouse/mnt/cuttlefish/lucas/3D_vids/Session_4/Video_12";
+basedir = "/home/mouse/mnt/cuttlefish/lucas/calibration_tests/20230803_lucas_calibration_videos/video_0";
 cd(basedir)
 numcams = 5;
 squareSize = 20.0; % Size of Checkerboard squares in mm
@@ -9,7 +9,7 @@ camera_ids = ["e3v833f" "e3v83e4" "e3v82eb" "e3v83d2" "e3v83d9"];
 % camera_ids = ["e3v83d2"];
 ext = ".mp4";
 maxNumImages = 500;
-videoName = "-20230724T134238-134450_smaller";
+videoName = "-20230803T151820-152410_downsampled";
 %% Automated Checkerboard Frame Detection
 % Pre-allocate
 params_individual = cell(1,numcams);
@@ -66,12 +66,12 @@ end
 % Save the camera parameters
 cd('../') %definitely refactor this
 % save('cam_intrinsics6.mat','int_file.params_individual','int_file.imagePoints','int_file.boardSize','int_file.imagesUsed','int_file.imageNums');
-save('cam_intrinsics7.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
+save('cam_intrinsics0.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
 
 %% Visualize Preprojections
 cd(basedir)
 cd('../')
-load('cam_intrinsics7.mat')
+load('cam_intrinsics0.mat')
 numcams = 5;
 for kk = 1:numcams
     video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext);    
