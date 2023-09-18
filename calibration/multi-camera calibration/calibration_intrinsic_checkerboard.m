@@ -1,7 +1,7 @@
 %% Find the camera intrinsic parameters
 % Input Parameters
 clear
-basedir = "/home/mouse/mnt/cuttlefish/lucas/calibration_tests/20230803_lucas_calibration_videos/video_0";
+basedir = "/home/mouse/mnt/cuttlefish/lucas/calibration_tests/calibration_0803/video_1";
 cd(basedir)
 numcams = 5;
 squareSize = 20.0; % Size of Checkerboard squares in mm
@@ -9,7 +9,7 @@ camera_ids = ["e3v833f" "e3v83e4" "e3v82eb" "e3v83d2" "e3v83d9"];
 % camera_ids = ["e3v83d2"];
 ext = ".mp4";
 maxNumImages = 500;
-videoName = "-20230803T151820-152410_downsampled";
+videoName = "-20230803T152439-152630";
 %% Automated Checkerboard Frame Detection
 % Pre-allocate
 params_individual = cell(1,numcams);
@@ -66,12 +66,12 @@ end
 % Save the camera parameters
 cd('../') %definitely refactor this
 % save('cam_intrinsics6.mat','int_file.params_individual','int_file.imagePoints','int_file.boardSize','int_file.imagesUsed','int_file.imageNums');
-save('cam_intrinsics0.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
+save('cam_intrinsics2.mat','params_individual','imagePoints','boardSize','imagesUsed','imageNums');
 
 %% Visualize Preprojections
 cd(basedir)
 cd('../')
-load('cam_intrinsics0.mat')
+load('cam_intrinsics2.mat')
 numcams = 5;
 for kk = 1:numcams
     video_temp = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext);    
@@ -92,7 +92,7 @@ for kk = 1:numcams
     
     %show first 20 of each
 %     for im2use = 1:numel(imagesUsed_)
-    for im2use = 1:20
+    for im2use = 20
         imUsed = imagesUsed_(im2use);
         imDisp = imagesUsedFull_(im2use);
         pts = imagePoints{kk}(:,:,imUsed);
@@ -101,6 +101,8 @@ for kk = 1:numcams
         hold on;
         plot(pts(:,1),pts(:,2),'or');
         plot(repro(:,1),repro(:,2),'xg');
+        xlabel('X (px)')
+        ylabel('Y (px)')
         drawnow;
         M(im2use) = getframe(gcf);
     end
@@ -114,14 +116,73 @@ for kk = 1:numcams
     %close(vk);
     
 end
+
+%% Visualize Checkerboard Sampling Coverage
+for kk = 1:numcams
+    pts = imagePoints{kk}([1 6 49 54],:,1:min([maxNumImages length(imagePoints{kk})]));
+    figure()
+    hold on
+    for i = 1:4
+        X = reshape(pts(i,1,:), [size(pts,3) 1]);
+        Y = reshape(pts(i,2,:), [size(pts,3) 1]);
+        scatter(X,Y); 
+        axis([0 640 0 480]) %change this to programmatically grab resolution
+        axis ij
+        xlabel('X (px)')
+        ylabel('Y (px)')
+    end
+    hold off
+end
+
+
+
 %% View Undistorted Images
 load([basedir 'cam_intrinsics.mat'])
 for kk=1:numcams
     imFiles1 = VideoReader(basedir+filesep+camera_ids(kk)+videoName+ext,'CurrentTime',0.5); 
     figure(kk);
     im = readFrame(imFiles1,'native');
-    subplot(121);imagesc(im);
-    subplot(122);imagesc(undistortImage(im,params_individual{kk}));
+    grid_weight = 2;
+    color = reshape([173 255 47],[1,1,3]); %yellow green
+    for r=[1:100:size(im,1) size(im,1)]
+        if r <= grid_weight %only change pixels to the right of the min
+            im(1:r+grid_weight,:,:) = repmat(color,[r+grid_weight,size(im,2),1]);
+        elseif r+grid_weight >= size(im,1) %only change pixels to the left of the max
+            im(r-grid_weight:size(im,1),:,:) = repmat(color,[1+size(im,1)-(r-grid_weight),size(im,2),1]);
+        else
+            im(r-grid_weight:r+grid_weight,:,:) = repmat(color,[2*grid_weight+1,size(im,2),1]);
+        end
+    end
+
+    for c=[1:100:size(im,2) size(im,2)]
+        if c <= grid_weight %only change pixels to the right of the min
+            im(:,1:c+grid_weight,:) = repmat(color,[size(im,1),c+grid_weight,1]);
+        elseif c+grid_weight >= size(im,2) %only change pixels to the left of the max
+            im(:,c-grid_weight:size(im,2),:) = repmat(color,[size(im,1),1+size(im,2)-(c-grid_weight),1]);
+        else
+            im(:,c-grid_weight:c+grid_weight,:) = repmat(color,[size(im,1),2*grid_weight+1,1]);
+        end
+    end
+
+%     x = [1:100:size(im,2) size(im,2)];
+%     y = [1:100:size(im,1) size(im,1)];
+%     [X,Y] = meshgrid(x,y);
+%     [Y2,X2] = meshgrid(y,x);
+%     tform = affinetform2d(params_individual{kk}.K);
+%     [XT,YT] = transformPointsForward(tform,X,Y);
+%     [X2T,Y2T] = transformPointsForward(tform,X2,Y2);
+
+    subplot(121);imagesc(im);axis image;xlabel('X (px)');ylabel('Y (px)');
+%     hold on
+%     plot(X,Y)
+%     plot(X2,Y2)
+%     hold off
+
+    subplot(122);imagesc(undistortImage(im,params_individual{kk}));axis image;xlabel('X (px)');ylabel('Y (px)');
+%     hold on
+%     plot(XT,YT)
+%     plot(X2T,Y2T)
+%     hold off
 end
 
 
