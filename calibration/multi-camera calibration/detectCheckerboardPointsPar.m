@@ -491,14 +491,14 @@ userCanceled = false;
 %     waitBar = ...
 %         vision.internal.calibration.checkerboard.DetectionProgressBar(numImages);
 % end
-parfor i = 1:numImages
+ parfor i = 1:numImages
 %     if showProgressBar && waitBar.Canceled
 %             points = [];
 %             boardSize = [0 0];
 %             imageIdx =[];
 %             userCanceled = true;
 %             return;
-%     end    
+%     end
     im = images(:, :, :, i);
     [boardPoints{i}, boardSizes(i,:)] = detectCheckerboardInOneImage(im, minCornerMetric); 
 %     if showProgressBar
