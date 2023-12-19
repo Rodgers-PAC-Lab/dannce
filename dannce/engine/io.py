@@ -14,6 +14,7 @@ def load_label3d_data(path: Text, key: Text):
     Returns:
         TYPE: Data from field
     """
+    print(path)
     d = sio.loadmat(path)[key]
     dataset = [f[0] for f in d]
 
