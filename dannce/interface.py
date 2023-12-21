@@ -1119,6 +1119,7 @@ def dannce_train(params: Dict):
                 gridsize,
             ]
             try:
+                # this calls nets.finetune_AVG()
                 model = params["net"](*fargs)
             except:
                 if params["expval"]:

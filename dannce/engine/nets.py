@@ -512,8 +512,13 @@ def finetune_AVG(
         norm_method,
         include_top=False,
     )
-
+    
     pre = model.get_weights()
+    # LW Debugging 2023-12-20
+    print(input_dim)
+    print(feature_num)
+    print(num_cams)
+    print(np.shape(pre))
     # Load weights
     model = renameLayers(model, weightspath)
 
@@ -756,10 +761,13 @@ def renameLayers(model, weightspath):
     """
     with h5py.File(weightspath, "r") as f:
         lnames = load_attributes_from_hdf5_group(f, "layer_names")
+    print(model.summary())
 
     tf2_names = []
     for (i, layer) in enumerate(model.layers):
         tf2_names.append(layer.name)
+        if layer.name == "image_input":
+            print(layer.input_shape)
         if layer.name != lnames[i]:
             print(
                 "Correcting mismatch in layer name, model: {}, weights: {}".format(
